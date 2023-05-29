@@ -1,35 +1,34 @@
 
 import networkx as nx
+# import matplotlib.pyplot as plt
 
 G = nx.Graph()
 CAST = ['aasha', 'paige', 'amber', 'nour', 'basit', 'jonathan', 'brandon', 'remy', 'kai', 'danny', 'jasmine', 'jenna', 'kari', 'kylie', 'max', 'justin']
-CAST_COPY = list(map(lambda x: x + '1' , CAST))
 
-# helper funcs
+#### helper funcs ####
 
-def generate_edges_for_couple(x, y):
-    return [[x, y+'1'], [x+'1', y]]
+def filtered_nodes(id):
+    filtered_nodes = [node for node, attrs in G.nodes(data=True) if isinstance(node, tuple) and node[1] == id]
+    return filtered_nodes
 
-def print_edges_without_dupes():
-    edges_without_dupes = []
-    for (x,y) in G.edges():
-        if y[len(y)-1] == '1' and (y[:-1], x+'1') not in edges_without_dupes:
-            print((x,y))
-            edges_without_dupes.append((x,y))
-            
-    print(len(edges_without_dupes))
-    return edges_without_dupes
+# def find_all_matchings(graph):
+#     matchings = []
+#     for nodeset in nx.bipartite.matching.minimum_weight_full_matching(graph):
+#         matching = [(u, v) for u, v, _ in nodeset]
+#         matchings.append(matching)
+#     return matchings
 
 # add nodes
-G.add_nodes_from(CAST, bipartite=0)
-G.add_nodes_from(CAST_COPY, bipartite=1)
+for x in CAST:
+    G.add_node((x, 0))
+    G.add_node((x, 1))
 
 # add edges
-for u in CAST:
-    for v in CAST_COPY:
-        if (u == v[:-1]): # don't include edge between someone and themself
-            continue
-        G.add_edge(u, v)
+for (u, i) in filtered_nodes(0):
+        for (v, j) in filtered_nodes(1):
+            if u == v: # don't add edge between someone and themself
+                continue
+            G.add_edge(u, v)
 
 #### SPOILERS ####
 # remove confirmed truth booth no-matches
@@ -52,17 +51,14 @@ BLACKOUT_NO_MATCH = [
     ['aasha', 'kai']
 ]
 
-for [x,y] in TRUTH_BOOTH_NO_MATCH:
-    G.remove_edges_from(generate_edges_for_couple(x, y))
+# for [x,y] in TRUTH_BOOTH_NO_MATCH:
+#     G.remove_edges_from(generate_edges_for_couple(x, y))
 
-for [x,y] in BLACKOUT_NO_MATCH:
-    G.remove_edges_from(generate_edges_for_couple(x, y))
+# for [x,y] in BLACKOUT_NO_MATCH:
+#     G.remove_edges_from(generate_edges_for_couple(x, y))
 
 # TODO: add perfect matches
 PERFECT_MATCH = [
     ['brandon', 'aasha'],
     ['basit', 'jonathan']
 ]
-
-# test
-print_edges_without_dupes()
