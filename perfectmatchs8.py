@@ -1,6 +1,5 @@
 
 import networkx as nx
-# import matplotlib.pyplot as plt
 
 G = nx.Graph()
 CAST = ['aasha', 'paige', 'amber', 'nour', 'basit', 'jonathan', 'brandon', 'remy', 'kai', 'danny', 'jasmine', 'jenna', 'kari', 'kylie', 'max', 'justin']
@@ -11,17 +10,31 @@ def filtered_nodes(id):
     filtered_nodes = [node for node, attrs in G.nodes(data=True) if isinstance(node, tuple) and node[1] == id]
     return filtered_nodes
 
-# def find_all_matchings(graph):
-#     matchings = []
-#     for nodeset in nx.bipartite.matching.minimum_weight_full_matching(graph):
-#         matching = [(u, v) for u, v, _ in nodeset]
-#         matchings.append(matching)
-#     return matchings
+def possible_matches_for(person):
+    return list(filter(lambda tup: tup[0] == person or tup[1] == person, G.edges()))
+
+def potential_matchings():
+    # Find connected components in the bipartite graph
+    components = list(nx.connected_components(G))
+
+    # Find maximum matchings for each component
+    all_matchings = []
+    for comp in components:
+        subgraph = G.subgraph(comp)
+        matchings = nx.bipartite.maximum_matching(subgraph)
+        all_matchings.extend(matchings)
+
+    # Print all matchings
+    for matching in all_matchings:
+        print(matching)
+    
+    return all_matchings
+
 
 # add nodes
 for x in CAST:
-    G.add_node((x, 0))
-    G.add_node((x, 1))
+    G.add_node((x, 0), bipartite=0)
+    G.add_node((x, 1), bipartite=1)
 
 # add edges
 for (u, i) in filtered_nodes(0):
@@ -60,17 +73,18 @@ PERFECT_MATCH = [
     ('basit', 'jonathan')
 ]
 
-print(G.edges())
-print(G.number_of_edges())
-
-# remove all the matches including people
+# remove all the matches including people, except for their perfect match
 MATCHED = [person for tuple in PERFECT_MATCH for person in tuple]
 
 for (u, v) in G.edges():
-    if (u, v) in PERFECT_MATCH or (v, u) in PERFECT_MATCH:
+    if (u, v) in PERFECT_MATCH or (v, u) in PERFECT_MATCH: 
         continue
     if u in MATCHED or v in MATCHED:
         G.remove_edge(u, v)
 
-print(G.edges())
-print(G.number_of_edges())
+# print(G.edges())
+# print(G.number_of_edges())
+
+#### test ####
+# print(possible_matches_for('justin'))
+potential_matchings()
