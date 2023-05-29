@@ -33,32 +33,44 @@ for (u, i) in filtered_nodes(0):
 #### SPOILERS ####
 # remove confirmed truth booth no-matches
 TRUTH_BOOTH_NO_MATCH = [
-    ['justin', 'nour'],
-    ['brandon', 'remy'],
-    ['kai', 'jenna'],
-    ['jenna', 'danny'],
-    ['kari', 'kylie'],
+    ('justin', 'nour'),
+    ('brandon', 'remy'),
+    ('kai', 'jenna'),
+    ('jenna', 'danny'),
+    ('kari', 'kylie'),
 ]
 
 BLACKOUT_NO_MATCH = [
-    ['kylie', 'jenna'],
-    ['nour', 'amber'],
-    ['jonathan', 'justin'],
-    ['max', 'brandon'],
-    ['remy', 'basit'],
-    ['kari', 'danny'],
-    ['paige', 'jasmine'],
-    ['aasha', 'kai']
+    ('kylie', 'jenna'),
+    ('nour', 'amber'),
+    ('jonathan', 'justin'),
+    ('max', 'brandon'),
+    ('remy', 'basit'),
+    ('kari', 'danny'),
+    ('paige', 'jasmine'),
+    ('aasha', 'kai')
 ]
 
-# for [x,y] in TRUTH_BOOTH_NO_MATCH:
-#     G.remove_edges_from(generate_edges_for_couple(x, y))
-
-# for [x,y] in BLACKOUT_NO_MATCH:
-#     G.remove_edges_from(generate_edges_for_couple(x, y))
+G.remove_edges_from(TRUTH_BOOTH_NO_MATCH)
+G.remove_edges_from(BLACKOUT_NO_MATCH)
 
 # TODO: add perfect matches
 PERFECT_MATCH = [
-    ['brandon', 'aasha'],
-    ['basit', 'jonathan']
+    ('brandon', 'aasha'),
+    ('basit', 'jonathan')
 ]
+
+print(G.edges())
+print(G.number_of_edges())
+
+# remove all the matches including people
+MATCHED = [person for tuple in PERFECT_MATCH for person in tuple]
+
+for (u, v) in G.edges():
+    if (u, v) in PERFECT_MATCH or (v, u) in PERFECT_MATCH:
+        continue
+    if u in MATCHED or v in MATCHED:
+        G.remove_edge(u, v)
+
+print(G.edges())
+print(G.number_of_edges())
